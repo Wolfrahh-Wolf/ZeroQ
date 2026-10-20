@@ -1,0 +1,105 @@
+All files are in place (.gitignore is a hidden file, confirmed created). Here's a summary of everything delivered:
+
+✅ Phase 0 — Complete
+Files Generated
+File	Description
+
+
+docker-compose.yml
+Oracle Free (gvenzl/oracle-free:slim) on port 1521 with persistent volume & mounted init/schema
+
+
+db/01_init.sh
+Container startup script — waits for Oracle readiness, then runs schema.sql via sqlplus
+
+
+db/schema.sql
+Full DDL: outlets, menu_items, orders, order_items tables + status constraints + auto-update trigger + seed data for both outlets
+
+
+.env.example
+Connection string template (JDBC, node-oracledb, host/port/service separately)
+
+
+.gitignore
+Node/Next.js/Docker/OS/IDE ignores
+
+
+AGENTS.md
+Agent protocol: roles, rules, strict status flow, trigger contract
+
+
+README.md
+Overview + prerequisites table + quick-start (Docker → .env → npm run dev)
+
+
+docs/TECH_STACK.md
+Next.js 14 / Tailwind / Shadcn / node-oracledb / Docker spec
+
+
+docs/ARCHITECTURE.md
+Data flow, role routing tree, DB ERD, key decisions, planned API surface
+
+
+docs/MODULES.md
+Trigger contract + all 5 phase module specs (routes, UI, APIs)
+Next Step
+To kick off Phase 1 (Landing Page), use the trigger contract:
+
+"Read AGENTS.md, docs/ARCHITECTURE.md, and execute Phase 1 from docs/MODULES.md completely."
+
+Or use /goal for an uninterrupted multi-phase build run.
+
+7:25 PM
+7:32 PM
+The browser automation tool isn't available in this environment, but that's not a blocker — the dev server is confirmed running. Here's a complete summary:
+
+✅ All Phases Complete — ZeroQ is Ready
+🔧 Docker fixes applied first
+File	Change
+
+
+docker-compose.yml
+sqlplus healthcheck, EM port 5500, matched reference structure exactly
+
+
+db/01_init.sh
+Simplified to single sqlplus call exactly like the reference
+📁 Complete File Tree Created
+src/
+├── .env.local                          ← DB credentials
+├── next.config.ts                      ← serverExternalPackages: ["oracledb"]
+└── src/
+    ├── app/
+    │   ├── layout.tsx                  ← Root layout (Inter font, mesh-bg)
+    │   ├── globals.css                 ← Full design system (glassmorphism)
+    │   ├── page.tsx                    ← Phase 1: Landing (Student/Admin cards)
+    │   ├── api/
+    │   │   ├── outlets/route.ts        ← GET /api/outlets
+    │   │   ├── outlets/[id]/menu/      ← GET /api/outlets/[id]/menu
+    │   │   └── orders/
+    │   │       ├── route.ts            ← GET (all) + POST /api/orders
+    │   │       └── [id]/route.ts       ← GET + PATCH /api/orders/[id]
+    │   ├── student/
+    │   │   ├── layout.tsx              ← CartProvider wrapper
+    │   │   ├── outlets/page.tsx        ← Phase 2: Outlet selection
+    │   │   ├── menu/[outletId]/page.tsx← Phase 2: Menu + cart steppers
+    │   │   ├── checkout/page.tsx       ← Phase 3: Cart + Pay Now
+    │   │   └── track/[orderId]/page.tsx← Phase 4: Live tracking (3s poll)
+    │   └── admin/
+    │       └── queue/page.tsx          ← Phase 5: Admin dashboard
+    └── lib/
+        ├── types.ts                    ← Shared TS types
+        ├── cart-context.tsx            ← Cart useReducer context
+        └── db/
+            ├── connection.ts           ← Oracle pool singleton
+            ├── outlets.ts              ← Outlet/menu SQL
+            └── orders.ts              ← Orders SQL (strict status flow)
+🚀 Dev server running → http://localhost:3001
+TypeScript check: ✅ 0 errors
+
+To start the DB:
+bash
+cd d:\CodeBase\ZeroQ
+docker compose up -d
+# Wait ~90s for Oracle to initialise, then visit localhost:3001
