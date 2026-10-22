@@ -1,0 +1,128 @@
+// This is your Prisma schema file.
+// Learn more about it at: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum OrderStatus {
+  ORDERED
+  READY
+  DELIVERED
+}
+
+// ─────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  outlet    Outlet?  @relation("AdminOutlet", fields: [outletId], references: [id])
+  outletId  String?  // null for STUDENT, set to assigned outlet for ADMIN
+  orders    Order[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Outlet {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  menuItems   MenuItem[]
+  orders      Order[]
+  admins      User[]     @relation("AdminOutlet")
+
+  @@index([slug])
+  @@map("outlets")
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  imageAsset  String   // shop-agnostic image asset identifier e.g. "meal-south-indian-dosa.png"
+  category    String   // e.g. "Meals", "Beverages", "Snacks", "Desserts"
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  outlet      Outlet      @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  outletId    String
+  orderItems  OrderItem[]
+
+  @@index([outletId])
+  @@index([category])
+  @@map("menu_items")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  billId      String      @unique // Human-readable e.g. "#MC-104"
+  status      OrderStatus @default(ORDERED)
+  totalAmount Float
+  paymentId   String?     // Razorpay payment ID after successful payment
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  student     User        @relation(fields: [studentId], references: [id])
+  studentId   String
+  outlet      Outlet      @relation(fields: [outletId], references: [id])
+  outletId    String
+  items       OrderItem[]
+
+  @@index([studentId])
+  @@index([outletId])
+  @@index([status])
+  @@index([billId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  quantity   Int    @default(1)
+  unitPrice  Float  // snapshot of price at time of order
+
+  // Relations
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItemId String
+
+  @@index([orderId])
+  @@map("order_items")
+}
