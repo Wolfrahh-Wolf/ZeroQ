@@ -21,6 +21,7 @@ enum Role {
 }
 
 enum OrderStatus {
+  PENDING_PAYMENT
   ORDERED
   READY
   DELIVERED
@@ -91,8 +92,9 @@ model MenuItem {
 
 model Order {
   id          String      @id @default(cuid())
-  billId      String      @unique // Human-readable e.g. "#MC-104"
-  status      OrderStatus @default(ORDERED)
+  billId      String?     @unique // Human-readable e.g. "#MC-104", assigned after payment verification
+  razorpayOrderId String? @unique
+  status      OrderStatus @default(PENDING_PAYMENT)
   totalAmount Float
   paymentId   String?     // Razorpay payment ID after successful payment
   createdAt   DateTime    @default(now())

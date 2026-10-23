@@ -52,19 +52,15 @@ export async function generateBillId(
 ): Promise<string> {
   const prefix = OUTLET_PREFIXES[outletSlug] ?? "ZQ";
 
-  const lastOrder = await tx.order.findFirst({
-    where: { outlet: { slug: outletSlug } },
-    orderBy: { createdAt: "desc" },
+  const billedOrders = await tx.order.findMany({
+    where: { outlet: { slug: outletSlug }, billId: { not: null } },
     select: { billId: true },
   });
 
-  let lastNumber = 0;
-  if (lastOrder?.billId) {
-    // Parse number from e.g. "#MC-104" → 104
-    const parts = lastOrder.billId.split("-");
-    const parsed = parseInt(parts[parts.length - 1] ?? "0", 10);
-    lastNumber = isNaN(parsed) ? 0 : parsed;
-  }
+  const lastNumber = billedOrders.reduce((max, order) => {
+    const parsed = Number.parseInt(order.billId?.split("-").at(-1) ?? "0", 10);
+    return Number.isFinite(parsed) ? Math.max(max, parsed) : max;
+  }, 0);
 
   const nextNumber = String(lastNumber + 1).padStart(3, "0");
   return `#${prefix}-${nextNumber}`;

@@ -54,10 +54,14 @@ export interface CreateOrderRequest {
  * Response from POST /api/orders (Razorpay order created)
  */
 export interface CreateOrderResponse {
-  razorpayOrderId: string;
-  amount: number; // in paise
-  currency: string;
-  orderId: string; // our internal DB order id (pending)
+  success: boolean;
+  data?: {
+    razorpayOrderId: string;
+    amount: number; // in paise
+    currency: string;
+    orderId: string; // our internal DB order id (pending payment)
+  };
+  error?: string;
 }
 
 /**
@@ -75,8 +79,7 @@ export interface VerifyPaymentRequest {
  */
 export interface VerifyPaymentResponse {
   success: boolean;
-  billId?: string;
-  orderId?: string;
+  data?: { billId: string; orderId: string };
   error?: string;
 }
 
