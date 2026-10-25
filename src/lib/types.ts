@@ -1,4 +1,4 @@
-import type { OrderItem, MenuItem, Order, Outlet, User } from "@prisma/client";
+import type { OrderItem, MenuItem, Order, Outlet, OrderStatus, User } from "@prisma/client";
 
 // ─── Auth / Session Types ─────────────────────────────────────────────────────
 
@@ -81,6 +81,43 @@ export interface VerifyPaymentResponse {
   success: boolean;
   data?: { billId: string; orderId: string };
   error?: string;
+}
+
+/** Safe order summary returned by GET /api/orders/my-orders. */
+export interface MyOrder {
+  id: string;
+  billId: string;
+  status: Exclude<OrderStatus, "PENDING_PAYMENT">;
+  totalAmount: number;
+  createdAt: string;
+  outlet: { name: string; slug: string };
+  items: Array<{
+    id: string;
+    quantity: number;
+    unitPrice: number;
+    menuItem: { name: string };
+  }>;
+}
+
+export interface MyOrdersResponse {
+  orders: MyOrder[];
+}
+
+/** Sanitized outlet order row returned to an authenticated canteen admin. */
+export interface AdminOrder {
+  id: string;
+  billId: string;
+  status: Exclude<OrderStatus, "PENDING_PAYMENT">;
+  totalAmount: number;
+  createdAt: string;
+  outlet: { name: string };
+  student: { name: string };
+  items: Array<{
+    id: string;
+    quantity: number;
+    unitPrice: number;
+    menuItem: { name: string };
+  }>;
 }
 
 /**
