@@ -100,7 +100,7 @@ This populates all 6 outlets, 6 admin accounts, 1 student account, and ~50 menu 
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3001](http://localhost:3001) in your browser.
 
 ---
 
@@ -113,7 +113,7 @@ Copy `.env.example` to `.env.local` and fill in:
 | `DATABASE_URL` | Supabase connection pooling URL (via PgBouncer) |
 | `DIRECT_URL` | Supabase direct connection (for Prisma migrations) |
 | `NEXTAUTH_SECRET` | Random secret for NextAuth session signing |
-| `NEXTAUTH_URL` | Your app URL (`http://localhost:3000` for local dev) |
+| `NEXTAUTH_URL` | Your app URL (`http://localhost:3001` for local dev) |
 | `RAZORPAY_KEY_ID` | Razorpay test Key ID |
 | `RAZORPAY_KEY_SECRET` | Razorpay test Key Secret |
 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Razorpay public key (exposed to client) |
