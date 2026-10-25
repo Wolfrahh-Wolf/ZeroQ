@@ -14,14 +14,6 @@ interface MenuItemCardProps {
   outlet: { id: string; slug: string; name: string };
 }
 
-function placeholderFor(category: string) {
-  const categoryKey = category.toLowerCase();
-  if (categoryKey.includes("beverage")) return "/assets/items/beverages.svg";
-  if (categoryKey.includes("snack")) return "/assets/items/snacks.svg";
-  if (categoryKey.includes("dessert")) return "/assets/items/desserts.svg";
-  return "/assets/items/meals.svg";
-}
-
 export function MenuItemCard({ item, outlet }: MenuItemCardProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem, openCart } = useCart();
@@ -34,7 +26,7 @@ export function MenuItemCard({ item, outlet }: MenuItemCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-fluent-2">
       <div className="relative aspect-square overflow-hidden bg-fluent-neutral-bg-3">
-        <Image src={placeholderFor(item.category)} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover" />
+        <Image src={`/assets/items/${item.imageAsset}`} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover" />
         <Badge variant="secondary" className="absolute left-3 top-3 border-white/60 bg-white/90">{item.category}</Badge>
       </div>
       <div className="flex flex-1 flex-col p-3 sm:p-4">

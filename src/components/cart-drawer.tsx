@@ -24,7 +24,7 @@ export function CartDrawer() {
           {items.length ? <ScrollArea className="min-h-0 flex-1 px-5">
             <div className="divide-y divide-fluent-neutral-stroke">
               {items.map((item) => <div key={item.menuItemId} className="flex gap-3 py-4">
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-fluent-neutral-bg-3"><Image src="/assets/items/meals.svg" alt="" fill sizes="64px" className="object-cover" /></div>
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-fluent-neutral-bg-3"><Image src={`/assets/items/${item.imageAsset}`} alt="" fill sizes="64px" className="object-cover" /></div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-fluent-text-primary">{item.name}</p>
                   <p className="mt-1 text-sm text-fluent-text-secondary">{formatPrice(item.price)} each</p>
