@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useCart } from "@/components/cart-context";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,7 @@ async function readJson(response: Response): Promise<unknown> {
 }
 
 export function CheckoutButton() {
+  const router = useRouter();
   const { data: session } = useSession();
   const { items, outletId, outletName, total, clearCart, closeCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -134,6 +136,7 @@ export function CheckoutButton() {
             clearCart();
             closeCart();
             showToast({ title: "Payment successful", description: `Your order is confirmed. Bill ID ${verified.data.data.billId}` });
+            router.push("/dashboard/orders");
           } catch (error) {
             showToast({ title: "Payment could not be confirmed", description: error instanceof Error && error.message ? error.message : "Please contact support before trying again.", variant: "destructive" });
           } finally {

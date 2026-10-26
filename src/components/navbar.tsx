@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { LogOut, ShoppingBag, Utensils } from "lucide-react";
+import { ClipboardList, LogOut, ShoppingBag, Utensils } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart-context";
@@ -25,6 +25,10 @@ export function Navbar() {
           {sectionName ? <><span className="text-fluent-neutral-stroke-2">/</span><span className="truncate text-sm capitalize text-fluent-text-secondary">{sectionName}</span></> : null}
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <Link href="/dashboard/orders" aria-label="My orders" aria-current={pathname === "/dashboard/orders" ? "page" : undefined} className="inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium text-fluent-text-secondary transition-colors hover:bg-fluent-neutral-bg-3 hover:text-fluent-text-primary">
+            <ClipboardList className="h-5 w-5" aria-hidden="true" />
+            <span className="hidden sm:inline">My orders</span>
+          </Link>
           <Button variant="ghost" size="icon" className="relative" onClick={openCart} aria-label={`Open cart, ${itemCount} items`}>
             <ShoppingBag className="h-5 w-5" />
             {itemCount > 0 ? <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-fluent-brand-primary px-1 text-[10px] font-semibold text-white">{itemCount}</span> : null}
