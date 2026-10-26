@@ -131,6 +131,7 @@ Copy `.env.example` to `.env.local` and fill in:
 | `npm run db:seed` | Populate database with default data |
 | `npm run db:studio` | Open Prisma Studio GUI |
 | `npm run db:generate` | Regenerate Prisma Client after schema changes |
+| `npm run vercel-build` | Production build with automated Prisma generation |
 
 ### Schema Overview
 

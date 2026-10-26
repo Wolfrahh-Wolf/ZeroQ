@@ -8,10 +8,10 @@
 
 | Layer | Technology | Version | Role |
 |-------|-----------|---------|------|
-| Full-Stack Framework | **Next.js** | 15.x (App Router) | Server & client rendering, API routes, routing |
+| Full-Stack Framework | **Next.js** | 15.5.x (App Router, CVE-patched) | Server & client rendering, API routes, routing |
 | Language | **TypeScript** | 5.x | Type-safe development across the entire codebase |
 | UI Library | **React** | 18.x | Component model and client interactivity |
-| Styling | **Tailwind CSS** | 3.x | Utility-first CSS framework |
+| Styling | **Tailwind CSS** | 3.4.x | Utility-first CSS framework |
 | Component Primitives | **Shadcn UI** | Latest | Accessible, unstyled Radix UI-based components |
 | Design System | **Microsoft Fluent 2 Light** | — | Visual design tokens, elevation, colour system |
 | Icons | **Lucide React** | 0.468+ | Icon set consistent with Fluent aesthetics |
@@ -20,7 +20,7 @@
 | Authentication | **NextAuth.js** | 4.x | Session management, JWT, Credentials provider |
 | Password Hashing | **bcryptjs** | 2.x | Secure password storage (cost factor 12) |
 | Payments | **Razorpay** | 2.x SDK | Payment gateway (Test/Sandbox mode) |
-| Runtime Validation | **Zod** | 3.x | Schema validation for API request/response |
+| Runtime Validation | **Zod** | 3.25.x | Schema validation for API request/response |
 | Deployment | **Vercel** | — | Edge network deployment for Next.js |
 
 ---
@@ -152,7 +152,7 @@
 
 | Feature | Detail |
 |---------|--------|
-| Build Command | `npm run build` (`next build`) |
+| Build Command | `npm run vercel-build` (`prisma generate && next build`) or `npm run build` |
 | Output | Next.js standalone |
 | Environment Variables | Set via Vercel Dashboard (never in code) |
 | Region | Auto (closest to Supabase region for minimal latency) |

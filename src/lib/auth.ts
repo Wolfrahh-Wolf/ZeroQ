@@ -9,7 +9,7 @@ import type { SessionUser } from "@/lib/types";
  *
  * Strategy: JWT (not database sessions — avoids adapter conflicts with Supabase pooling)
  * Provider: Credentials (Email + Password)
- * Token fields: id, name, email, role, outletId
+ * Token fields: id, name, email, role, outletId, firstName, lastName
  *
  * Role-based routing handled in src/middleware.ts
  */
@@ -32,6 +32,8 @@ export const authOptions: NextAuthOptions = {
           select: {
             id: true,
             name: true,
+            firstName: true,
+            lastName: true,
             email: true,
             password: true,
             role: true,
@@ -48,6 +50,8 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           name: user.name,
+          firstName: user.firstName ?? undefined,
+          lastName: user.lastName ?? undefined,
           email: user.email,
           role: user.role,
           outletId: user.outletId ?? null,
@@ -69,6 +73,8 @@ export const authOptions: NextAuthOptions = {
         token.id = u.id;
         token.role = u.role;
         token.outletId = u.outletId ?? null;
+        token.firstName = u.firstName ?? null;
+        token.lastName = u.lastName ?? null;
       }
       return token;
     },
@@ -79,6 +85,8 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as "STUDENT" | "ADMIN";
         session.user.outletId = (token.outletId as string | null) ?? null;
+        session.user.firstName = (token.firstName as string | null) ?? null;
+        session.user.lastName = (token.lastName as string | null) ?? null;
       }
       return session;
     },
@@ -101,8 +109,8 @@ export const authOptions: NextAuthOptions = {
 
 /**
  * TypeScript: Extend NextAuth types to include custom session fields.
- * This augmentation allows TypeScript to know about id, role, and outletId
- * on the session.user object without casting.
+ * This augmentation allows TypeScript to know about id, role, outletId,
+ * firstName, and lastName on the session.user object without casting.
  */
 declare module "next-auth" {
   interface Session {
@@ -112,6 +120,8 @@ declare module "next-auth" {
       email: string;
       role: "STUDENT" | "ADMIN";
       outletId: string | null;
+      firstName: string | null;
+      lastName: string | null;
     };
   }
 }
@@ -121,5 +131,7 @@ declare module "next-auth/jwt" {
     id: string;
     role: "STUDENT" | "ADMIN";
     outletId: string | null;
+    firstName: string | null;
+    lastName: string | null;
   }
 }

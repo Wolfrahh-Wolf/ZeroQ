@@ -73,7 +73,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         totalAmount: true,
         createdAt: true,
         outlet: { select: { name: true } },
-        student: { select: { name: true } },
+        student: { select: { name: true, firstName: true, lastName: true } },
         items: {
           select: {
             id: true,

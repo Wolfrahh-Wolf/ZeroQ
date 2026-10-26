@@ -71,7 +71,11 @@ export function AdminOrderRow({ order, searchQuery, onStatusChange }: AdminOrder
   return <>
     <tr className="border-b border-fluent-neutral-stroke last:border-0 hover:bg-fluent-neutral-bg-2/70">
       <td className="whitespace-nowrap px-4 py-4 font-semibold text-fluent-text-primary"><HighlightedBillId billId={order.billId} query={searchQuery} /></td>
-      <td className="max-w-48 truncate px-4 py-4 text-sm text-fluent-text-primary" title={order.student.name}>{order.student.name}</td>
+      <td className="max-w-48 truncate px-4 py-4 text-sm text-fluent-text-primary" title={order.student.name}>
+        {order.student.firstName && order.student.lastName
+          ? `${order.student.firstName} ${order.student.lastName}`
+          : order.student.name}
+      </td>
       <td className="min-w-64 px-4 py-4 text-sm text-fluent-text-secondary">
         <div className="space-y-1">
           {order.items.slice(0, 3).map((item) => <p key={item.id} className="truncate" title={`${item.menuItem.name} × ${item.quantity}`}>{item.menuItem.name} <span className="text-fluent-text-primary">× {item.quantity}</span></p>)}
@@ -100,7 +104,11 @@ export function AdminOrderRow({ order, searchQuery, onStatusChange }: AdminOrder
             Confirm Delivery
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to mark <strong>{order.billId}</strong> ({order.student.name}) as delivered? This action cannot be undone.
+            Are you sure you want to mark <strong>{order.billId}</strong> (
+            {order.student.firstName && order.student.lastName
+              ? `${order.student.firstName} ${order.student.lastName}`
+              : order.student.name}
+            ) as delivered? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-end gap-2">

@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         totalAmount: true,
         createdAt: true,
         outlet: { select: { name: true } },
-        student: { select: { name: true } },
+        student: { select: { name: true, firstName: true, lastName: true } },
         items: {
           select: {
             id: true,

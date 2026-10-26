@@ -19,8 +19,8 @@ export function MenuItemCard({ item, outlet }: MenuItemCardProps) {
   const { addItem, openCart } = useCart();
 
   function addToCart() {
-    const added = addItem({ menuItemId: item.id, name: item.name, price: item.price, imageAsset: item.imageAsset, quantity }, outlet);
-    if (added) openCart();
+    addItem({ menuItemId: item.id, name: item.name, price: item.price, imageAsset: item.imageAsset, quantity }, outlet);
+    openCart();
   }
 
   return (

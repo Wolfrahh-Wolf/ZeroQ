@@ -3,67 +3,93 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useState, type ReactNode } from "react";
 import type { CartItem } from "@/lib/types";
 
-interface OutletSelection { id: string; slug: string; name: string }
-interface CartContextValue {
+export interface OutletSelection { id: string; slug: string; name: string }
+
+export interface OutletGroup {
+  outlet: OutletSelection;
   items: CartItem[];
-  outletId: string | null;
-  outletSlug: string | null;
-  outletName: string | null;
+}
+
+interface CartContextValue {
+  groups: OutletGroup[];
   itemCount: number;
-  total: number;
+  grandTotal: number;
   isOpen: boolean;
-  notice: string;
   openCart: () => void;
   closeCart: () => void;
-  clearNotice: () => void;
-  addItem: (item: CartItem, outlet: OutletSelection) => boolean;
-  removeItem: (menuItemId: string) => void;
-  updateQuantity: (menuItemId: string, quantity: number) => void;
+  addItem: (item: CartItem, outlet: OutletSelection) => void;
+  removeItem: (menuItemId: string, outletId: string) => void;
+  updateQuantity: (menuItemId: string, outletId: string, quantity: number) => void;
+  clearOutletGroup: (outletId: string) => void;
   clearCart: () => void;
 }
 
-type CartState = Pick<CartContextValue, "items" | "outletId" | "outletSlug" | "outletName" | "isOpen" | "notice">;
+type CartState = {
+  groups: OutletGroup[];
+  isOpen: boolean;
+};
+
 type Action =
-  | { type: "HYDRATE"; payload: Pick<CartState, "items" | "outletId" | "outletSlug" | "outletName"> }
+  | { type: "HYDRATE"; payload: { groups: OutletGroup[] } }
   | { type: "ADD_ITEM"; item: CartItem; outlet: OutletSelection }
-  | { type: "REMOVE_ITEM"; menuItemId: string }
-  | { type: "UPDATE_QUANTITY"; menuItemId: string; quantity: number }
+  | { type: "REMOVE_ITEM"; menuItemId: string; outletId: string }
+  | { type: "UPDATE_QUANTITY"; menuItemId: string; outletId: string; quantity: number }
+  | { type: "CLEAR_OUTLET_GROUP"; outletId: string }
   | { type: "CLEAR_CART" }
   | { type: "OPEN" }
-  | { type: "CLOSE" }
-  | { type: "CLEAR_NOTICE" };
+  | { type: "CLOSE" };
 
-const initialState: CartState = { items: [], outletId: null, outletSlug: null, outletName: null, isOpen: false, notice: "" };
-const STORAGE_KEY = "zeroq-cart-v1";
+const initialState: CartState = { groups: [], isOpen: false };
+// Incremented to v2 to invalidate old single-outlet cart data
+const STORAGE_KEY = "zeroq-cart-v2";
 
 function reducer(state: CartState, action: Action): CartState {
   switch (action.type) {
-    case "HYDRATE": return { ...state, ...action.payload };
+    case "HYDRATE": return { ...state, groups: action.payload.groups };
+
     case "ADD_ITEM": {
-      if (state.outletId && state.outletId !== action.outlet.id) {
-        return { ...state, notice: `Your cart contains items from ${state.outletName}. Clear it before ordering from ${action.outlet.name}.` };
+      const groupIndex = state.groups.findIndex((g) => g.outlet.id === action.outlet.id);
+      if (groupIndex === -1) {
+        // Create a new outlet group
+        return { ...state, groups: [...state.groups, { outlet: action.outlet, items: [action.item] }] };
       }
-      const existing = state.items.find((item) => item.menuItemId === action.item.menuItemId);
-      const items = existing
-        ? state.items.map((item) => item.menuItemId === action.item.menuItemId ? { ...item, quantity: item.quantity + action.item.quantity } : item)
-        : [...state.items, action.item];
-      return { ...state, items, outletId: action.outlet.id, outletSlug: action.outlet.slug, outletName: action.outlet.name, notice: "" };
+      const group = state.groups[groupIndex];
+      const existing = group.items.find((i) => i.menuItemId === action.item.menuItemId);
+      const updatedItems = existing
+        ? group.items.map((i) => i.menuItemId === action.item.menuItemId ? { ...i, quantity: i.quantity + action.item.quantity } : i)
+        : [...group.items, action.item];
+      const updatedGroup: OutletGroup = { ...group, items: updatedItems };
+      const groups = [...state.groups];
+      groups[groupIndex] = updatedGroup;
+      return { ...state, groups };
     }
+
     case "REMOVE_ITEM": {
-      const items = state.items.filter((item) => item.menuItemId !== action.menuItemId);
-      return { ...state, items, ...(items.length ? {} : { outletId: null, outletSlug: null, outletName: null }) };
+      const groups = state.groups
+        .map((g) => g.outlet.id !== action.outletId ? g : { ...g, items: g.items.filter((i) => i.menuItemId !== action.menuItemId) })
+        .filter((g) => g.items.length > 0);
+      return { ...state, groups };
     }
+
     case "UPDATE_QUANTITY": {
       if (action.quantity <= 0) {
-        const items = state.items.filter((item) => item.menuItemId !== action.menuItemId);
-        return { ...state, items, ...(items.length ? {} : { outletId: null, outletSlug: null, outletName: null }) };
+        return reducer(state, { type: "REMOVE_ITEM", menuItemId: action.menuItemId, outletId: action.outletId });
       }
-      return { ...state, items: state.items.map((item) => item.menuItemId === action.menuItemId ? { ...item, quantity: action.quantity } : item) };
+      const groups = state.groups.map((g) =>
+        g.outlet.id !== action.outletId ? g
+          : { ...g, items: g.items.map((i) => i.menuItemId === action.menuItemId ? { ...i, quantity: action.quantity } : i) }
+      );
+      return { ...state, groups };
     }
-    case "CLEAR_CART": return { ...state, items: [], outletId: null, outletSlug: null, outletName: null, notice: "" };
+
+    case "CLEAR_OUTLET_GROUP": {
+      const groups = state.groups.filter((g) => g.outlet.id !== action.outletId);
+      return { ...state, groups };
+    }
+
+    case "CLEAR_CART": return { ...state, groups: [] };
     case "OPEN": return { ...state, isOpen: true };
     case "CLOSE": return { ...state, isOpen: false };
-    case "CLEAR_NOTICE": return { ...state, notice: "" };
   }
 }
 
@@ -78,50 +104,60 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const saved = window.sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed: unknown = JSON.parse(saved);
-        if (isPersistedCart(parsed)) dispatch({ type: "HYDRATE", payload: parsed });
+        if (isPersistedCart(parsed)) dispatch({ type: "HYDRATE", payload: { groups: parsed.groups } });
       }
     } catch {
-      try { window.sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be disabled by the browser. */ }
+      try { window.sessionStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be disabled. */ }
     }
     setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ items: state.items, outletId: state.outletId, outletSlug: state.outletSlug, outletName: state.outletName }));
-  }, [hydrated, state.items, state.outletId, state.outletSlug, state.outletName]);
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ groups: state.groups }));
+  }, [hydrated, state.groups]);
 
   const value = useMemo<CartContextValue>(() => ({
     ...state,
-    itemCount: state.items.reduce((sum, item) => sum + item.quantity, 0),
-    total: state.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    itemCount: state.groups.reduce((sum, g) => sum + g.items.reduce((s, i) => s + i.quantity, 0), 0),
+    grandTotal: state.groups.reduce((sum, g) => sum + g.items.reduce((s, i) => s + i.price * i.quantity, 0), 0),
     openCart: () => dispatch({ type: "OPEN" }),
     closeCart: () => dispatch({ type: "CLOSE" }),
-    clearNotice: () => dispatch({ type: "CLEAR_NOTICE" }),
-    addItem: (item, outlet) => {
-      if (state.outletId && state.outletId !== outlet.id) {
-        dispatch({ type: "ADD_ITEM", item, outlet });
-        return false;
-      }
-      dispatch({ type: "ADD_ITEM", item, outlet });
-      return true;
-    },
-    removeItem: (menuItemId) => dispatch({ type: "REMOVE_ITEM", menuItemId }),
-    updateQuantity: (menuItemId, quantity) => dispatch({ type: "UPDATE_QUANTITY", menuItemId, quantity }),
+    addItem: (item, outlet) => dispatch({ type: "ADD_ITEM", item, outlet }),
+    removeItem: (menuItemId, outletId) => dispatch({ type: "REMOVE_ITEM", menuItemId, outletId }),
+    updateQuantity: (menuItemId, outletId, quantity) => dispatch({ type: "UPDATE_QUANTITY", menuItemId, outletId, quantity }),
+    clearOutletGroup: (outletId) => dispatch({ type: "CLEAR_OUTLET_GROUP", outletId }),
     clearCart: () => dispatch({ type: "CLEAR_CART" }),
   }), [state]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
-function isPersistedCart(value: unknown): value is Pick<CartState, "items" | "outletId" | "outletSlug" | "outletName"> {
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return typeof item.menuItemId === "string"
+    && typeof item.name === "string"
+    && typeof item.price === "number"
+    && typeof item.quantity === "number"
+    && typeof item.imageAsset === "string";
+}
+
+function isOutletSelection(value: unknown): value is OutletSelection {
+  if (!value || typeof value !== "object") return false;
+  const o = value as Record<string, unknown>;
+  return typeof o.id === "string" && typeof o.slug === "string" && typeof o.name === "string";
+}
+
+function isPersistedCart(value: unknown): value is { groups: OutletGroup[] } {
   if (!value || typeof value !== "object") return false;
   const cart = value as Record<string, unknown>;
-  return Array.isArray(cart.items)
-    && cart.items.every((item: unknown) => item && typeof item === "object" && typeof (item as CartItem).menuItemId === "string" && typeof (item as CartItem).name === "string" && typeof (item as CartItem).price === "number" && typeof (item as CartItem).quantity === "number")
-    && (typeof cart.outletId === "string" || cart.outletId === null)
-    && (typeof cart.outletSlug === "string" || cart.outletSlug === null)
-    && (typeof cart.outletName === "string" || cart.outletName === null);
+  if (!Array.isArray(cart.groups)) return false;
+  return cart.groups.every((g: unknown) => {
+    if (!g || typeof g !== "object") return false;
+    const group = g as Record<string, unknown>;
+    return isOutletSelection(group.outlet) && Array.isArray(group.items) && group.items.every(isCartItem);
+  });
 }
 
 export function useCart() {

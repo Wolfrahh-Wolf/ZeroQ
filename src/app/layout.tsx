@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description:
     "ZeroQ converts waiting time into travel time. Pre-order your campus canteen meals during transit and skip the queue entirely.",
   keywords: ["campus canteen", "pre-order", "food ordering", "college", "ZeroQ"],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -9,6 +9,8 @@ import type { OrderItem, MenuItem, Order, Outlet, OrderStatus, User } from "@pri
 export interface SessionUser {
   id: string;
   name: string;
+  firstName?: string | null;
+  lastName?: string | null;
   email: string;
   role: "STUDENT" | "ADMIN";
   outletId: string | null; // null for STUDENT, outlet id for ADMIN
@@ -111,7 +113,7 @@ export interface AdminOrder {
   totalAmount: number;
   createdAt: string;
   outlet: { name: string };
-  student: { name: string };
+  student: { name: string; firstName?: string | null; lastName?: string | null };
   items: Array<{
     id: string;
     quantity: number;
@@ -143,7 +145,7 @@ export type OrderItemWithMenuItem = OrderItem & {
 export type OrderWithDetails = Order & {
   items: OrderItemWithMenuItem[];
   outlet: Pick<Outlet, "id" | "name" | "slug">;
-  student: Pick<User, "id" | "name" | "email">;
+  student: Pick<User, "id" | "name" | "email" | "firstName" | "lastName">;
 };
 
 // ─── Outlet / Menu Types ──────────────────────────────────────────────────────

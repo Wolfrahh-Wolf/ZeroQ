@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { LoaderCircle, RefreshCw, Utensils } from "lucide-react";
 import { z } from "zod";
 import { AdminOrderRow } from "@/components/admin-order-row";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { showToast } from "@/components/ui/toaster";
+import { subscribeToOrderChanges } from "@/lib/supabase-realtime";
 import type { AdminOrder } from "@/lib/types";
 
 const adminOrderSchema = z.object({
@@ -19,7 +21,11 @@ const adminOrderSchema = z.object({
   totalAmount: z.number(),
   createdAt: z.string(),
   outlet: z.object({ name: z.string() }),
-  student: z.object({ name: z.string() }),
+  student: z.object({
+    name: z.string(),
+    firstName: z.string().nullable().optional(),
+    lastName: z.string().nullable().optional(),
+  }),
   items: z.array(z.object({
     id: z.string(),
     quantity: z.number(),
@@ -56,6 +62,7 @@ async function fetchOrders(statuses: "ORDERED,READY" | "DELIVERED"): Promise<Adm
 export function AdminDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   const activeTab = searchParams.get("view") === "history" ? "history" : "queue";
   const [activeOrders, setActiveOrders] = useState<AdminOrder[]>([]);
   const [historyOrders, setHistoryOrders] = useState<AdminOrder[]>([]);
@@ -65,8 +72,12 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  // Debounce rapid realtime events
+  const requestInFlight = useRef(false);
 
   const refreshActiveOrders = useCallback(async (showSpinner = false) => {
+    if (requestInFlight.current) return;
+    requestInFlight.current = true;
     if (showSpinner) setIsRefreshing(true);
     try {
       const orders = await fetchOrders("ORDERED,READY");
@@ -76,6 +87,7 @@ export function AdminDashboard() {
     } catch (cause) {
       setRefreshError(cause instanceof Error ? cause.message : "Unable to refresh orders.");
     } finally {
+      requestInFlight.current = false;
       if (showSpinner) setIsRefreshing(false);
     }
   }, []);
@@ -99,17 +111,48 @@ export function AdminDashboard() {
     return () => { mounted = false; };
   }, []);
 
+  // Realtime subscription + 30s fallback poll (Active Queue tab only)
   useEffect(() => {
     if (activeTab !== "queue") return;
-    const interval = window.setInterval(() => void refreshActiveOrders(), 10_000);
-    return () => window.clearInterval(interval);
-  }, [activeTab, refreshActiveOrders]);
+    const outletId = session?.user?.outletId;
+    if (!outletId) {
+      // Fall back to polling if outletId not yet available
+      const interval = window.setInterval(() => void refreshActiveOrders(), 30_000);
+      return () => window.clearInterval(interval);
+    }
+
+    const channel = subscribeToOrderChanges(
+      { outletId },
+      () => {
+        if (!requestInFlight.current) void refreshActiveOrders();
+      },
+    );
+
+    // 30s fallback poll in case realtime drops
+    const fallbackInterval = window.setInterval(() => void refreshActiveOrders(), 30_000);
+
+    return () => {
+      channel?.unsubscribe();
+      window.clearInterval(fallbackInterval);
+    };
+  }, [activeTab, session?.user?.outletId, refreshActiveOrders]);
 
   const visibleOrders = useMemo(() => {
     const source = activeTab === "history" ? historyOrders : activeOrders;
     const query = searchQuery.trim().toLocaleLowerCase();
     if (!query) return source;
-    return source.filter((order) => order.billId.toLocaleLowerCase().includes(query) || order.student.name.toLocaleLowerCase().includes(query));
+    return source.filter((order) => {
+      const studentFullName = order.student.firstName && order.student.lastName
+        ? `${order.student.firstName} ${order.student.lastName}`
+        : order.student.name;
+      return (
+        order.billId.toLocaleLowerCase().includes(query) ||
+        order.student.name.toLocaleLowerCase().includes(query) ||
+        studentFullName.toLocaleLowerCase().includes(query) ||
+        (order.student.firstName?.toLocaleLowerCase().includes(query) ?? false) ||
+        (order.student.lastName?.toLocaleLowerCase().includes(query) ?? false)
+      );
+    });
   }, [activeOrders, activeTab, historyOrders, searchQuery]);
 
   const placeOrderInCorrectQueue = useCallback((order: AdminOrder) => {

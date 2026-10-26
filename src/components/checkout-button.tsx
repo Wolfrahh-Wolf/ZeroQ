@@ -4,10 +4,11 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { useCart } from "@/components/cart-context";
+import { useCart, type OutletGroup } from "@/components/cart-context";
 import { Button } from "@/components/ui/button";
 import { showToast } from "@/components/ui/toaster";
 import { LoaderCircle, LockKeyhole } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface RazorpayCheckoutResponse {
   razorpay_payment_id: string;
@@ -82,14 +83,21 @@ async function readJson(response: Response): Promise<unknown> {
   try { return await response.json(); } catch { return null; }
 }
 
-export function CheckoutButton() {
+interface CheckoutButtonProps {
+  outletGroup: OutletGroup;
+}
+
+export function CheckoutButton({ outletGroup }: CheckoutButtonProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const { items, outletId, outletName, total, clearCart, closeCart } = useCart();
+  const { clearOutletGroup, closeCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const { outlet, items } = outletGroup;
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   async function beginCheckout() {
-    if (!outletId || items.length === 0 || isProcessing) return;
+    if (!outlet.id || items.length === 0 || isProcessing) return;
     const publicKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     if (!publicKey) {
       showToast({ title: "Checkout unavailable", description: "Online payment is not configured.", variant: "destructive" });
@@ -101,7 +109,7 @@ export function CheckoutButton() {
       const createResponse = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outletId, items: items.map(({ menuItemId, quantity }) => ({ menuItemId, quantity })) }),
+        body: JSON.stringify({ outletId: outlet.id, items: items.map(({ menuItemId, quantity }) => ({ menuItemId, quantity })) }),
       });
       const created = createOrderResponseSchema.safeParse(await readJson(createResponse));
       if (!createResponse.ok || !created.success || !created.data.success || !created.data.data) {
@@ -112,14 +120,18 @@ export function CheckoutButton() {
       if (!loaded || !window.Razorpay) throw new Error("Unable to load secure checkout. Please try again.");
 
       let paymentResponseReceived = false;
+      const displayName = session?.user.firstName && session?.user.lastName
+        ? `${session.user.firstName} ${session.user.lastName}`
+        : session?.user.name ?? "";
+
       const checkout = new window.Razorpay({
         key: publicKey,
         amount: order.amount,
         currency: order.currency,
         name: "ZeroQ",
-        description: `${outletName ?? "Campus outlet"} order`,
+        description: `${outlet.name} order`,
         order_id: order.razorpayOrderId,
-        prefill: { name: session?.user.name ?? "", email: session?.user.email ?? "" },
+        prefill: { name: displayName, email: session?.user.email ?? "" },
         theme: { color: "#0078D4" },
         handler: async (payment) => {
           paymentResponseReceived = true;
@@ -133,7 +145,9 @@ export function CheckoutButton() {
             if (!verifyResponse.ok || !verified.success || !verified.data.success || !verified.data.data) {
               throw new Error(verified.success ? verified.data.error ?? "Payment could not be confirmed." : "Payment could not be confirmed.");
             }
-            clearCart();
+            // Only clear this outlet's group — leave other outlet groups intact
+            clearOutletGroup(outlet.id);
+            // Close cart only if no groups remain (handled via cart-drawer automatically)
             closeCart();
             showToast({ title: "Payment successful", description: `Your order is confirmed. Bill ID ${verified.data.data.billId}` });
             router.push("/dashboard/orders");
@@ -160,11 +174,10 @@ export function CheckoutButton() {
     }
   }
 
-  return <>
-    <Button type="button" className="w-full" onClick={beginCheckout} disabled={items.length === 0 || !outletId || isProcessing}>
+  return (
+    <Button type="button" className="w-full" onClick={beginCheckout} disabled={items.length === 0 || isProcessing}>
       {isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <LockKeyhole className="h-4 w-4" />}
-      {isProcessing ? "Opening secure checkout…" : `Proceed to payment · ₹${total.toFixed(2)}`}
+      {isProcessing ? "Opening secure checkout…" : `Pay ${formatPrice(total)} · ${outlet.name}`}
     </Button>
-    <p className="mt-2 text-center text-xs text-fluent-text-secondary">Payments are verified securely before your order is confirmed.</p>
-  </>;
+  );
 }

@@ -8,6 +8,9 @@
  *  - 6 campus outlets
  *  - 1 STUDENT + 6 ADMIN accounts (one admin per outlet)
  *  - ~8–10 menu items per outlet using shop-agnostic image asset identifiers
+ *
+ * Task 1.2: All users now seeded with firstName + lastName.
+ * Existing users get these fields populated via updateMany after schema migration.
  */
 
 import { PrismaClient, Role } from "@prisma/client";
@@ -437,17 +440,21 @@ const menuByOutlet: Record<string, MenuItemSeed[]> = {
 // ─── Admin accounts (one per outlet) ────────────────────────────────────────
 
 const adminCredentials = [
-  { name: "Admin — Main Canteen", email: "admin.maincanteen@zeroq.app", slug: "main-canteen" },
+  { name: "Admin — Main Canteen", firstName: "Admin", lastName: "Main Canteen", email: "admin.maincanteen@zeroq.app", slug: "main-canteen" },
   {
     name: "Admin — Rishab's Food Court",
+    firstName: "Admin",
+    lastName: "Rishab's Food Court",
     email: "admin.rishabs@zeroq.app",
     slug: "rishabs-food-court",
   },
-  { name: "Admin — Snow Cubes", email: "admin.snowcubes@zeroq.app", slug: "snow-cubes" },
-  { name: "Admin — Metro Cafe", email: "admin.metrocafe@zeroq.app", slug: "metro-cafe" },
-  { name: "Admin — PR Cafe", email: "admin.prcafe@zeroq.app", slug: "pr-cafe" },
+  { name: "Admin — Snow Cubes", firstName: "Admin", lastName: "Snow Cubes", email: "admin.snowcubes@zeroq.app", slug: "snow-cubes" },
+  { name: "Admin — Metro Cafe", firstName: "Admin", lastName: "Metro Cafe", email: "admin.metrocafe@zeroq.app", slug: "metro-cafe" },
+  { name: "Admin — PR Cafe", firstName: "Admin", lastName: "PR Cafe", email: "admin.prcafe@zeroq.app", slug: "pr-cafe" },
   {
     name: "Admin — Aswin's Food Court",
+    firstName: "Admin",
+    lastName: "Aswin's Food Court",
     email: "admin.aswins@zeroq.app",
     slug: "aswins-food-court",
   },
@@ -457,6 +464,17 @@ const adminCredentials = [
 
 async function main() {
   console.log("🌱 Starting ZeroQ database seed...\n");
+
+  // 0. Clean database tables from scratch
+  console.log("🧹 Clearing existing data from database...");
+  await prisma.$transaction([
+    prisma.orderItem.deleteMany(),
+    prisma.order.deleteMany(),
+    prisma.menuItem.deleteMany(),
+    prisma.user.deleteMany(),
+    prisma.outlet.deleteMany(),
+  ]);
+  console.log("   ✔ All tables cleared cleanly.\n");
 
   // 1. Seed outlets
   console.log("📍 Seeding outlets...");
@@ -472,29 +490,33 @@ async function main() {
     console.log(`   ✔ ${outlet.name} (${outlet.id})`);
   }
 
-  // 2. Seed student account
+  // 2. Seed student account (Task 1.2: populate firstName + lastName)
   console.log("\n👤 Seeding student account...");
   await prisma.user.upsert({
     where: { email: "student@zeroq.app" },
-    update: {},
+    update: { firstName: "Alex", lastName: "Student" },
     create: {
       name: "Alex Student",
+      firstName: "Alex",
+      lastName: "Student",
       email: "student@zeroq.app",
       password: await hash("student123"),
       role: Role.STUDENT,
     },
   });
-  console.log("   ✔ student@zeroq.app (password: student123)");
+  console.log("   ✔ student@zeroq.app (password: student123) → firstName: Alex, lastName: Student");
 
-  // 3. Seed admin accounts
+  // 3. Seed admin accounts (Task 1.2: populate firstName + lastName)
   console.log("\n🔐 Seeding admin accounts...");
   for (const admin of adminCredentials) {
     const outletId = outletMap[admin.slug];
     await prisma.user.upsert({
       where: { email: admin.email },
-      update: {},
+      update: { firstName: admin.firstName, lastName: admin.lastName },
       create: {
         name: admin.name,
+        firstName: admin.firstName,
+        lastName: admin.lastName,
         email: admin.email,
         password: await hash("admin123"),
         role: Role.ADMIN,
@@ -502,6 +524,37 @@ async function main() {
       },
     });
     console.log(`   ✔ ${admin.email} (password: admin123) → ${admin.slug}`);
+  }
+
+  // 3b. Seed Yashwanth student accounts with password Yash@123
+  console.log("\n👤 Seeding Yashwanth student accounts...");
+  const yashwanthEmails = [
+    "yashwantharumugam2007@gmail.com",
+    "yashwanth2025offl@gmail.com",
+    "yashwanth2510445@ssn.edu.in",
+  ];
+  const yashPasswordHash = await hash("Yash@123");
+
+  for (const email of yashwanthEmails) {
+    await prisma.user.upsert({
+      where: { email },
+      update: {
+        name: "Yashwanth A",
+        firstName: "Yashwanth",
+        lastName: "A",
+        password: yashPasswordHash,
+        role: Role.STUDENT,
+      },
+      create: {
+        name: "Yashwanth A",
+        firstName: "Yashwanth",
+        lastName: "A",
+        email,
+        password: yashPasswordHash,
+        role: Role.STUDENT,
+      },
+    });
+    console.log(`   ✔ ${email} (password: Yash@123) → firstName: Yashwanth, lastName: A`);
   }
 
   // 4. Seed menu items
@@ -532,8 +585,9 @@ async function main() {
 
   console.log("\n✅ Seed complete!");
   console.log("\n📋 Login Credentials Summary:");
-  console.log("   Student  → student@zeroq.app   / student123");
-  console.log("   Admin(s) → admin.[outlet]@zeroq.app / admin123");
+  console.log("   Student   → student@zeroq.app   / student123");
+  console.log("   Yashwanth → yashwanth*@...      / Yash@123");
+  console.log("   Admin(s)  → admin.[outlet]@zeroq.app / admin123");
 }
 
 main()

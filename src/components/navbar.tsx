@@ -11,8 +11,16 @@ import { useCart } from "@/components/cart-context";
 export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { itemCount, openCart, notice, clearNotice, clearCart } = useCart();
+  const { itemCount, openCart } = useCart();
   const sectionName = pathname.split("/").filter(Boolean)[1]?.replaceAll("-", " ");
+
+  // Display first+last name from session (Task 1.2)
+  const displayName = session?.user.firstName && session?.user.lastName
+    ? `${session.user.firstName} ${session.user.lastName}`
+    : session?.user.name ?? "Student";
+  const firstInitial = session?.user.firstName?.slice(0, 1).toUpperCase()
+    ?? session?.user.name?.slice(0, 1).toUpperCase()
+    ?? "S";
 
   return (
     <header className="sticky top-0 z-40 border-b border-fluent-neutral-stroke bg-white/95 shadow-sm backdrop-blur">
@@ -34,15 +42,14 @@ export function Navbar() {
             {itemCount > 0 ? <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-fluent-brand-primary px-1 text-[10px] font-semibold text-white">{itemCount}</span> : null}
           </Button>
           <div className="hidden items-center gap-2 sm:flex">
-            <Avatar className="h-8 w-8"><AvatarFallback className="bg-fluent-brand-light text-xs font-semibold text-fluent-brand-primary">{session?.user.name?.slice(0, 1).toUpperCase() ?? "S"}</AvatarFallback></Avatar>
-            <span className="max-w-32 truncate text-sm text-fluent-text-secondary">{session?.user.name ?? "Student"}</span>
+            <Avatar className="h-8 w-8"><AvatarFallback className="bg-fluent-brand-light text-xs font-semibold text-fluent-brand-primary">{firstInitial}</AvatarFallback></Avatar>
+            <span className="max-w-36 truncate text-sm text-fluent-text-secondary">{displayName}</span>
           </div>
           <Button variant="ghost" size="icon" aria-label="Sign out" onClick={() => signOut({ callbackUrl: "/login" })}>
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      {notice ? <div role="alert" className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-950 sm:px-6 lg:px-8"><div className="mx-auto flex max-w-7xl items-center justify-between gap-3"><span>{notice}</span><Button type="button" variant="link" className="h-auto shrink-0 p-0 text-amber-950" onClick={() => { clearCart(); clearNotice(); }}>Clear cart to switch</Button></div></div> : null}
     </header>
   );
 }
