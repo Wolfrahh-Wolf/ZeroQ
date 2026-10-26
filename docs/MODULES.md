@@ -83,7 +83,7 @@ src/components/ui/         ← Shadcn UI primitives (button, card, input, label,
 **Verification**:
 ```bash
 npm run dev
-# → Visit http://localhost:3000 → redirects to /login
+# → Visit http://localhost:3001 → redirects to /login
 # → Login with student@zeroq.app / student123 → redirects to /dashboard (stub page OK)
 # → Login with admin.maincanteen@zeroq.app / admin123 → redirects to /admin (stub page OK)
 # → Try to access /admin as student → redirected to /dashboard
