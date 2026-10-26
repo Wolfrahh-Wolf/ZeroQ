@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     "ZeroQ converts waiting time into travel time. Pre-order your campus canteen meals during transit and skip the queue entirely.",
   keywords: ["campus canteen", "pre-order", "food ordering", "college", "ZeroQ"],
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-    ],
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
   },
 };
 
