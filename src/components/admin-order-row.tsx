@@ -36,7 +36,7 @@ function HighlightedBillId({ billId, query }: { billId: string; query: string })
   const matchEnd = matchStart + normalizedQuery.length;
   return <span>
     {billId.slice(0, matchStart)}
-    <mark className="rounded-sm bg-[#FFF4CE] px-0.5 text-[#835C00]">{billId.slice(matchStart, matchEnd)}</mark>
+    <mark className="rounded-sm bg-[#FFF4CE] px-0.5 text-[#835C00] dark:bg-[#3a2f00] dark:text-[#fad24d]">{billId.slice(matchStart, matchEnd)}</mark>
     {billId.slice(matchEnd)}
   </span>;
 }
@@ -69,7 +69,7 @@ export function AdminOrderRow({ order, searchQuery, onStatusChange }: AdminOrder
   }
 
   return <>
-    <tr className="border-b border-fluent-neutral-stroke last:border-0 hover:bg-fluent-neutral-bg-2/70">
+    <tr className="border-b border-fluent-neutral-stroke last:border-0 hover:bg-fluent-neutral-bg-2/70 dark:border-[#3d3d3d] dark:hover:bg-[#333333]/70">
       <td className="whitespace-nowrap px-4 py-4 font-semibold text-fluent-text-primary"><HighlightedBillId billId={order.billId} query={searchQuery} /></td>
       <td className="max-w-48 truncate px-4 py-4 text-sm text-fluent-text-primary" title={order.student.name}>
         {order.student.firstName && order.student.lastName

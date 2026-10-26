@@ -38,7 +38,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-fluent-neutral-bg-3 px-4 py-10">
+    <main className="flex min-h-screen items-center justify-center bg-fluent-neutral-bg-3 px-4 py-10 dark:bg-[#1a1a1a]">
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-fluent-brand-primary text-white shadow-fluent-4">
@@ -65,7 +65,7 @@ export default function LoginPage() {
                 </div>
                 <Input id="password" name="password" type="password" autoComplete="current-password" placeholder="Enter your password" required value={password} onChange={(event) => setPassword(event.target.value)} />
               </div>
-              {error ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
+              {error ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-[#3a0f0f] dark:text-red-300">{error}</p> : null}
               <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Signing in…" : "Sign in"}
                 {!isSubmitting ? <ArrowRight aria-hidden="true" className="h-4 w-4" /> : null}

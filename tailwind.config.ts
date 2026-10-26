@@ -11,38 +11,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Microsoft Fluent 2 Light Theme Tokens
+        // Microsoft Fluent 2 Design Tokens (mapped to CSS variables for dynamic dark/light switching)
         fluent: {
           // Brand
-          "brand-primary": "#0078D4",
-          "brand-hover": "#106EBE",
-          "brand-pressed": "#005A9E",
-          "brand-light": "#EFF6FC",
+          "brand-primary": "var(--fluent-brand-primary)",
+          "brand-hover": "var(--fluent-brand-hover)",
+          "brand-pressed": "var(--fluent-brand-pressed)",
+          "brand-light": "var(--fluent-brand-light)",
           // Neutral Surfaces
-          "neutral-bg": "#FFFFFF",
-          "neutral-bg-2": "#FAFAFA",
-          "neutral-bg-3": "#F5F5F5",
-          "neutral-bg-4": "#F0F0F0",
+          "neutral-bg": "var(--fluent-neutral-bg)",
+          "neutral-bg-2": "var(--fluent-neutral-bg-2)",
+          "neutral-bg-3": "var(--fluent-neutral-bg-3)",
+          "neutral-bg-4": "var(--fluent-neutral-bg-4)",
           // Strokes / Borders
-          "neutral-stroke": "#E0E0E0",
-          "neutral-stroke-2": "#C8C8C8",
-          "neutral-stroke-3": "#ADADAD",
+          "neutral-stroke": "var(--fluent-neutral-stroke)",
+          "neutral-stroke-2": "var(--fluent-neutral-stroke-2)",
+          "neutral-stroke-3": "var(--fluent-neutral-stroke-3)",
           // Text
-          "text-primary": "#242424",
-          "text-secondary": "#616161",
-          "text-tertiary": "#8A8886",
-          "text-disabled": "#BDBDBD",
+          "text-primary": "var(--fluent-text-primary)",
+          "text-secondary": "var(--fluent-text-secondary)",
+          "text-tertiary": "var(--fluent-text-tertiary)",
+          "text-disabled": "var(--fluent-text-disabled)",
           // Status: ORDERED
-          "status-ordered-bg": "#FFF4CE",
-          "status-ordered-fg": "#835C00",
+          "status-ordered-bg": "var(--fluent-status-ordered-bg)",
+          "status-ordered-fg": "var(--fluent-status-ordered-fg)",
           "status-ordered-border": "#FADA83",
           // Status: READY
-          "status-ready-bg": "#DFF6DD",
-          "status-ready-fg": "#107C10",
+          "status-ready-bg": "var(--fluent-status-ready-bg)",
+          "status-ready-fg": "var(--fluent-status-ready-fg)",
           "status-ready-border": "#82C978",
           // Status: DELIVERED
-          "status-delivered-bg": "#DEECF9",
-          "status-delivered-fg": "#0078D4",
+          "status-delivered-bg": "var(--fluent-status-delivered-bg)",
+          "status-delivered-fg": "var(--fluent-status-delivered-fg)",
           "status-delivered-border": "#83BFEC",
         },
       },

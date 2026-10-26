@@ -213,7 +213,7 @@ export function AdminDashboard() {
       </div>
     </div>
 
-    {error ? <div role="alert" className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+    {error ? <div role="alert" className="rounded-lg border border-red-200 bg-white p-5 shadow-sm dark:border-red-900 dark:bg-[#252525]">
       <p className="font-medium text-fluent-text-primary">Orders couldn’t load</p>
       <p className="mt-1 text-sm text-fluent-text-secondary">{error}</p>
       <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => {
@@ -226,13 +226,13 @@ export function AdminDashboard() {
       }}>Try again</Button>
     </div> : null}
 
-    {refreshError && !error ? <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">Queue refresh failed. Showing the latest loaded orders.</p> : null}
+    {refreshError && !error ? <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-[#3a2f00] dark:text-amber-200">Queue refresh failed. Showing the latest loaded orders.</p> : null}
 
     <Tabs value={activeTab} onValueChange={(value) => router.replace(value === "history" ? "/admin?view=history" : "/admin?view=queue", { scroll: false })}>
       <div className="flex items-center justify-between gap-6">
         <TabsList>
-          <TabsTrigger value="queue" className="gap-2">Active Queue <span className="rounded-full bg-fluent-neutral-bg-3 px-2 py-0.5 text-xs">{activeOrders.length}</span></TabsTrigger>
-          <TabsTrigger value="history" className="gap-2">Order History <span className="rounded-full bg-fluent-neutral-bg-3 px-2 py-0.5 text-xs">{historyOrders.length}</span></TabsTrigger>
+          <TabsTrigger value="queue" className="gap-2">Active Queue <span className="rounded-full bg-fluent-neutral-bg-3 px-2 py-0.5 text-xs dark:bg-[#3d3d3d]">{activeOrders.length}</span></TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">Order History <span className="rounded-full bg-fluent-neutral-bg-3 px-2 py-0.5 text-xs dark:bg-[#3d3d3d]">{historyOrders.length}</span></TabsTrigger>
         </TabsList>
         <AdminSearchBar value={searchQuery} onChange={setSearchQuery} />
       </div>
@@ -265,7 +265,7 @@ function OrderTable({
   return <Card className="overflow-hidden">
     <div className="max-h-[calc(100vh-19rem)] overflow-auto">
       <table className="w-full border-collapse text-left">
-        <thead className="sticky top-0 z-10 border-b border-fluent-neutral-stroke bg-fluent-neutral-bg-3 text-xs font-semibold uppercase tracking-wide text-fluent-text-secondary">
+        <thead className="sticky top-0 z-10 border-b border-fluent-neutral-stroke bg-fluent-neutral-bg-3 text-xs font-semibold uppercase tracking-wide text-fluent-text-secondary dark:border-[#3d3d3d] dark:bg-[#333333]">
           <tr>
             <th scope="col" className="whitespace-nowrap px-4 py-3">Bill ID</th>
             <th scope="col" className="whitespace-nowrap px-4 py-3">Student</th>

@@ -18,14 +18,36 @@ export const metadata: Metadata = {
   },
 };
 
+// Inline script content to apply theme before hydration (prevents flash)
+const themeInitScript = `
+(function(){
+  try {
+    var stored = localStorage.getItem('zeroq-theme');
+    if (stored === 'light') { document.documentElement.classList.remove('dark'); return; }
+    if (stored === 'dark') { document.documentElement.classList.add('dark'); return; }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.classList.remove('dark');
+      return;
+    }
+    document.documentElement.classList.add('dark');
+  } catch(e) {
+    document.documentElement.classList.add('dark');
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Blocking script: apply theme before React hydrates to prevent FOUC */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="bg-fluent-neutral-bg-2 dark:bg-[#1a1a1a] text-fluent-text-primary">
         <Providers>
           {children}
           <Toaster />

@@ -116,21 +116,21 @@ export default function MyOrdersPage() {
       </div>
     </div>
 
-    {error && orders.length === 0 && !isLoading ? <div role="alert" className="rounded-lg border border-red-200 bg-white p-6 text-center shadow-sm">
+    {error && orders.length === 0 && !isLoading ? <div role="alert" className="rounded-lg border border-red-200 bg-white p-6 text-center shadow-sm dark:border-red-900 dark:bg-[#252525]">
       <p className="font-medium text-fluent-text-primary">Orders couldn&apos;t load</p>
       <p className="mt-1 text-sm text-fluent-text-secondary">{error}</p>
       <Button type="button" className="mt-4" onClick={retry} disabled={isRefreshing}>Try again</Button>
     </div> : null}
 
     {isLoading ? <div aria-label="Loading orders" className="space-y-5">
-      {[0, 1].map((placeholder) => <Card key={placeholder} className="h-72 animate-pulse bg-white p-6">
+      {[0, 1].map((placeholder) => <Card key={placeholder} className="h-72 animate-pulse bg-white p-6 dark:bg-[#252525]">
         <div className="h-6 w-36 rounded bg-fluent-neutral-bg-3" />
         <div className="mt-4 h-4 w-48 rounded bg-fluent-neutral-bg-3" />
         <div className="mt-8 h-28 rounded bg-fluent-neutral-bg-3" />
       </Card>)}
     </div> : null}
 
-    {!isLoading && !error && orders.length === 0 ? <div className="rounded-lg border border-slate-200 bg-white px-6 py-12 text-center shadow-sm">
+    {!isLoading && !error && orders.length === 0 ? <div className="rounded-lg border border-slate-200 bg-white px-6 py-12 text-center shadow-sm dark:border-[#3d3d3d] dark:bg-[#252525]">
       <ClipboardList className="mx-auto h-10 w-10 text-fluent-text-secondary" aria-hidden="true" />
       <h2 className="mt-4 text-xl font-semibold text-fluent-text-primary">No orders yet</h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-fluent-text-secondary">When you place an order, its bill and live pickup status will show up here. Recent orders stay visible for 30 days.</p>
@@ -140,7 +140,7 @@ export default function MyOrdersPage() {
     </div> : null}
 
     {orders.length > 0 ? <div className="space-y-5">
-      {error ? <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">Couldn&apos;t refresh right now. Showing your last loaded orders.</p> : null}
+      {error ? <p role="status" className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-[#3a2f00] dark:text-amber-200">Couldn&apos;t refresh right now. Showing your last loaded orders.</p> : null}
       {orders.map((order) => <OrderCard key={order.id} order={order} />)}
       <p className="text-center text-xs text-fluent-text-secondary">Order statuses update in real-time. Orders are shown for 30 days.</p>
     </div> : null}

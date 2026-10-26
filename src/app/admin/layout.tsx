@@ -19,10 +19,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     // Keep the admin shell usable if the outlet label cannot be loaded.
   }
 
-  return <div className="flex min-h-screen min-w-[1024px] bg-fluent-neutral-bg-2">
+  return <div className="flex min-h-screen min-w-[1024px] bg-fluent-neutral-bg-2 dark:bg-[#1a1a1a]">
     <AdminSidebar outletName={outletName} />
     <div className="flex min-w-0 flex-1 flex-col">
-      <header className="flex h-16 items-center border-b border-fluent-neutral-stroke bg-white px-8">
+      <header className="flex h-16 items-center border-b border-fluent-neutral-stroke bg-white px-8 dark:border-[#3d3d3d] dark:bg-[#1a1a1a]">
         <p className="text-sm font-medium text-fluent-text-secondary">Canteen fulfillment</p>
       </header>
       <main className="w-full flex-1 px-8 py-8">{children}</main>

@@ -33,9 +33,9 @@ export function Toaster() {
   }, []);
 
   return <div aria-live="polite" aria-atomic="true" className="pointer-events-none fixed right-4 top-4 z-[100] w-[calc(100%-2rem)] max-w-sm">
-    {toast ? <div role={toast.variant === "destructive" ? "alert" : "status"} className={`pointer-events-auto rounded-md border bg-white p-4 shadow-fluent-4 ${toast.variant === "destructive" ? "border-red-300" : "border-slate-200"}`}>
-      <p className={`text-sm font-semibold ${toast.variant === "destructive" ? "text-red-800" : "text-fluent-text-primary"}`}>{toast.title}</p>
-      {toast.description ? <p className="mt-1 text-sm text-fluent-text-secondary">{toast.description}</p> : null}
+    {toast ? <div role={toast.variant === "destructive" ? "alert" : "status"} className={`pointer-events-auto rounded-md border bg-white p-4 shadow-fluent-4 dark:bg-[#252525] ${toast.variant === "destructive" ? "border-red-300 dark:border-red-900" : "border-slate-200 dark:border-[#3d3d3d]"}`}>
+      <p className={`text-sm font-semibold ${toast.variant === "destructive" ? "text-red-800 dark:text-red-400" : "text-fluent-text-primary dark:text-[#f5f5f5]"}`}>{toast.title}</p>
+      {toast.description ? <p className="mt-1 text-sm text-fluent-text-secondary dark:text-[#adadad]">{toast.description}</p> : null}
     </div> : null}
   </div>;
 }

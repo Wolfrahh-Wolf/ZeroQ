@@ -46,7 +46,7 @@ export function OrderCard({ order }: { order: MyOrder }) {
       </CardHeader>
 
       <CardContent className="space-y-5 px-5 pb-5 sm:px-6 sm:pb-6">
-        <div className="rounded-lg bg-fluent-neutral-bg-2 p-4">
+        <div className="rounded-lg bg-fluent-neutral-bg-2 p-4 dark:bg-[#252525]">
           <h3 className="text-sm font-semibold text-fluent-text-primary">Items</h3>
           <ul className="mt-3 space-y-2">
             {order.items.map((item) => (
@@ -56,7 +56,7 @@ export function OrderCard({ order }: { order: MyOrder }) {
               </li>
             ))}
           </ul>
-          <div className="mt-3 flex justify-between border-t border-fluent-neutral-stroke pt-3 text-sm font-semibold text-fluent-text-primary">
+          <div className="mt-3 flex justify-between border-t border-fluent-neutral-stroke pt-3 text-sm font-semibold text-fluent-text-primary dark:border-[#3d3d3d]">
             <span>Total</span><span>{formatPrice(order.totalAmount)}</span>
           </div>
         </div>
@@ -68,12 +68,12 @@ export function OrderCard({ order }: { order: MyOrder }) {
               const complete = index <= currentRank;
               return <li key={step.status} className="flex min-w-0 flex-1 items-center last:flex-none">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${complete ? "bg-fluent-brand-primary text-white" : "bg-fluent-neutral-bg-3 text-fluent-text-secondary"}`}>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${complete ? "bg-fluent-brand-primary text-white" : "bg-fluent-neutral-bg-3 text-fluent-text-secondary dark:bg-[#333333] dark:text-[#adadad]"}`}>
                     {complete ? <CircleCheck className="h-4 w-4" aria-hidden="true" /> : <span className="text-xs font-semibold">{index + 1}</span>}
                   </span>
                   <span className={`truncate text-xs sm:text-sm ${complete ? "font-medium text-fluent-text-primary" : "text-fluent-text-secondary"}`}>{step.label}</span>
                 </div>
-                {index < timeline.length - 1 ? <span aria-hidden="true" className={`mx-2 h-px min-w-2 flex-1 ${index < currentRank ? "bg-fluent-brand-primary" : "bg-fluent-neutral-stroke-2"}`} /> : null}
+                {index < timeline.length - 1 ? <span aria-hidden="true" className={`mx-2 h-px min-w-2 flex-1 ${index < currentRank ? "bg-fluent-brand-primary" : "bg-fluent-neutral-stroke-2 dark:bg-[#525252]"}`} /> : null}
               </li>;
             })}
           </ol>

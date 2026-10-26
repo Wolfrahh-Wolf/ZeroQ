@@ -9,7 +9,7 @@ interface AdminSearchBarProps {
 }
 
 export function AdminSearchBar({ value, onChange }: AdminSearchBarProps) {
-  return <div className="flex h-10 w-full max-w-md items-center gap-2 rounded-md border border-fluent-neutral-stroke-2 bg-white px-3 focus-within:border-fluent-brand-primary focus-within:ring-2 focus-within:ring-fluent-brand-primary/20">
+  return <div className="flex h-10 w-full max-w-md items-center gap-2 rounded-md border border-fluent-neutral-stroke-2 bg-white px-3 focus-within:border-fluent-brand-primary focus-within:ring-2 focus-within:ring-fluent-brand-primary/20 dark:border-[#525252] dark:bg-[#252525]">
     <Search className="h-4 w-4 shrink-0 text-fluent-text-secondary" aria-hidden="true" />
     <input
       type="search"

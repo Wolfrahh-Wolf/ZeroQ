@@ -79,21 +79,81 @@ body {
   line-height: 1.5;
 }
 
+/* ─── Microsoft Fluent 2 Dark Theme ───────────────────────────────────────── */
+.dark {
+  /* Brand — lighter blues for visibility on dark surfaces */
+  --fluent-brand-primary: #479ef5;
+  --fluent-brand-hover: #62abf5;
+  --fluent-brand-pressed: #2886de;
+  --fluent-brand-light: #052c4a;
+
+  /* Neutral Surfaces */
+  --fluent-neutral-bg: #1a1a1a;
+  --fluent-neutral-bg-2: #252525;
+  --fluent-neutral-bg-3: #333333;
+  --fluent-neutral-bg-4: #3d3d3d;
+
+  /* Strokes */
+  --fluent-neutral-stroke: #3d3d3d;
+  --fluent-neutral-stroke-2: #525252;
+  --fluent-neutral-stroke-3: #6e6e6e;
+
+  /* Text */
+  --fluent-text-primary: #f5f5f5;
+  --fluent-text-secondary: #adadad;
+  --fluent-text-tertiary: #8a8886;
+  --fluent-text-disabled: #5c5c5c;
+
+  /* Status — dark-mode variants that stay legible */
+  --fluent-status-ordered-bg: #3a2f00;
+  --fluent-status-ordered-fg: #fad24d;
+  --fluent-status-ready-bg: #0d3314;
+  --fluent-status-ready-fg: #6fcf97;
+  --fluent-status-delivered-bg: #052c4a;
+  --fluent-status-delivered-fg: #479ef5;
+
+  /* Shadcn UI compatibility variables — dark overrides */
+  --background: 0 0% 10%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 14%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 14%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 211 89% 62%;          /* #479EF5 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 20%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 68%;
+  --accent: 211 89% 15%;
+  --accent-foreground: 211 89% 62%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 24%;
+  --input: 0 0% 24%;
+  --ring: 211 89% 62%;
+}
+
 /* ─── Utility: Fluent Status Badge Classes ────────────────────────────────── */
 .status-ordered {
   background-color: var(--fluent-status-ordered-bg);
   color: var(--fluent-status-ordered-fg);
-  border: 1px solid #fada83;
+  border: 1px solid #7a5c00;
 }
 
 .status-ready {
   background-color: var(--fluent-status-ready-bg);
   color: var(--fluent-status-ready-fg);
-  border: 1px solid #82c978;
+  border: 1px solid #2d7a3a;
 }
 
 .status-delivered {
   background-color: var(--fluent-status-delivered-bg);
   color: var(--fluent-status-delivered-fg);
-  border: 1px solid #83bfec;
+  border: 1px solid #1a6fb5;
 }
+
+/* Override badge borders for light mode */
+:root .status-ordered { border-color: #fada83; }
+:root .status-ready   { border-color: #82c978; }
+:root .status-delivered { border-color: #83bfec; }
